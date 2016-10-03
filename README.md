@@ -1,6 +1,13 @@
-# Forge
+<p align="center">
+  <a href="https://github.com/quidmonkey/forge">
+    <img height="200" width="176" src="https://www.dropbox.com/s/o14iy9b7ng5y5jy/Forge-logo-16color-439x500.png?dl=1">
+  </a>
+  <p align="center">The task runner for scalable local development</p>
+</p>
 
-This is a task runner for scalable local development for larger teams.
+## What is Forge?
+
+Forge is a task runner intended for larger development teams.
 
 It attempts to solve several problems:
 
