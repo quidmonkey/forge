@@ -115,3 +115,33 @@ run_task () {
         exit 1
     fi
 }
+
+##
+# Updates forge to the latest version
+#
+# Arguments:
+#   1. The directory where forge is installed
+#
+# Returns:
+#   None
+##
+update_forge () {
+    local forge_dir=$1
+    local start_dir=$(pwd)
+
+    cd $forge_dir
+
+    local current_local=$(git describe --abbrev=0 --tags)
+    local current_remote=$(git ls-remote -q --tags | awk -F'/' '/[0-9].[0-9].[0-9].*/ {print $3}' | sort -nr | head -n 1)
+
+    if [[ $current_remote == $current_local ]]; then
+        log "$current_local - the most recent version of forge is already installed."
+    else
+        log "Newer version of forge found. Installing $current_remote..."
+        git fetch
+        git checkout tags/$current_remote
+        log "$current_remote of forge installed."
+    fi
+
+    cd $start_dir
+}

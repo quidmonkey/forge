@@ -76,6 +76,25 @@ task_usage () {
 }
 
 ##
+# Print forge update usage
+#
+# Arguments:
+#   None
+#
+# Returns:
+#   None
+##
+update_usage () {
+    printf "
+        USAGE:
+            forge update
+
+        NOTES:
+            This will install the latest release of forge.
+    \n"
+}
+
+##
 # Print forge usage
 #
 # Arguments:

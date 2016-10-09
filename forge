@@ -38,6 +38,9 @@ main () {
             if [[ $task == "install" ]]; then
                 install_usage
                 exit
+            elif [[ $task == "update" ]]; then
+                update_usage
+                exit
             elif [[ -f $FORGE_TASKS/$task ]]; then
                 task_usage $FORGE_TASKS/$task
                 exit
@@ -59,6 +62,11 @@ main () {
 
     if [[ $task == "install" ]]; then
         install_forge $forge_process
+        exit
+    fi
+
+    if [[ $task == "update" ]]; then
+        update_forge $forge_process
         exit
     fi
 
