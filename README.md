@@ -56,6 +56,8 @@ forge -t
 
 Other commands exist to make the development experience easier. Run `forge -h` to find out more.
 
+To keep forge up-to-date, make use of the built-in `forge update` command to update to the most recent release.
+
 ## Build Notes
 
 If you using forge to generate your build artifact, you will likely not want to run the install script. Instead, clone down the forge repo to your build server and invoke the `forge` executable directly with whatever build tasks you may need e.g. `forge build`.
