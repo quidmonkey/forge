@@ -21,26 +21,28 @@ bust_cache () {
             log "Busting cache for $filepath"
             rm -f $FORGE_CACHE/$cached_file
         else
-            local has_file=false
-
-            for f in $FORGE_CACHE/*; do
-                if cmp --silent $f $filepath; then
-                    has_file=true
-                    break
-                fi
-            done
-
-            if [ "$has_file" = true ]; then
-                log "Busting cache for $f"
-                rm -f $FORGE_CACHE/$f
-            else
-                error "Aborting: Unable to find cache for $filepath"
-            fi
+            error "Aborting: Unable to find cache for $filepath"
         fi
     else
         log "Busting the Forge cache."
         rm -Rf $FORGE_CACHE
     fi
+}
+
+##
+# Busts the forge cache for any file older
+# than a given cutoff period.
+#
+# Arguments:
+#   1. (Optional) Target cutoff period in days
+#
+# Returns:
+#   None
+##
+bust_stale_cache () {
+    local target_cutoff=${1-30}
+    debug "Busting the forge cache for any file older than $target_cutoff days"
+    find $FORGE_CACHE -type f -mindepth 1 -mtime +$target_cutoff -depth -delete
 }
 
 ##
@@ -61,7 +63,7 @@ enforce_version () {
 
     if [[ $? -eq 0 ]]; then
         debug "Caching $filepath"
-        cp -f $filepath $FORGE_CACHE/$(get_cache_key $filepath)
+        touch $FORGE_CACHE/$(get_cache_key $filepath)
     else
         error "Aborting: Unable to cache and execute $@"
         exit 1
@@ -70,16 +72,30 @@ enforce_version () {
 
 ##
 # Get the cache filename for files forge
-# has stored in its .cache directory.
+# has stored in its .cache directory. Forge
+# caches files using their SHA1 checksum as
+# the filename. This preserves a file's identity
+# across file systems for containerization,
+# eliminates collision, and keeps lookup times
+# to O(1).
 #
 # Arguments:
 #   1. Absolute filepath
 #
 # Returns:
-#   Cache key of the filepath with forward slashes replaced.
+#   Checksum of the file
 ##
 get_cache_key () {
-    printf "%s" "${1//\//_}"
+    local filepath=$1
+
+    # sigh...OSX
+    if command_exists shasum; then
+        shasum -a 1 $filepath | awk '{print $1}'
+    elif command_exists sha1sum; then
+        sha1sum $filepath | awk '{print $1}'
+    else
+        log "Unable to generate SHA1 checksum for $filepath. Unable to cache file."
+    fi
 }
 
 ##
@@ -107,6 +123,8 @@ version_control () {
     # test .cache directory exists
     mkdir -p $FORGE_CACHE
 
+    bust_stale_cache
+
     local filename=${filepath##*/}
     local temp_file=$FORGE_CACHE/$(get_cache_key $filepath)
 
@@ -120,13 +138,7 @@ version_control () {
 
     # does cache exist?
     if [[ -f $temp_file ]]; then
-        # are files different?
-        if cmp --silent $temp_file $filepath; then
-            log "No changes in $filename"
-        else
-            log "$filename is out-of-date: executing $@"
-            enforce_version $filepath $@
-        fi
+        log "No changes in $filename"
     else
         log "No cache for $filename: executing and caching"
         enforce_version $filepath $@

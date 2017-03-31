@@ -19,7 +19,7 @@ It attempts to solve several problems:
 
 ## Containerization
 
-It's important to mention that Forge is not seeking to replace containerization i.e. Docker, but is intended to complement it. When it comes to env setup and config, containerization is the best solution; but containerization does not solve how to run or develop an application; nor does it deal well with the idiosyncrasies of varying language-based package managers, without resulting to long container initialization times and tedious curation. This is where Forge comes in.
+It's important to mention that Forge is not seeking to replace containerization i.e. Docker, but is intended to complement it. When it comes to env setup and config, containerization is the best solution; but containerization does not solve how to run or develop an application; nor does it deal well with the idiosyncrasies of varying language-based package managers, without resulting to long container initialization times and tedious curation. See [docker-forge](https://github.com/quidmonkey/docker-forge) for forge and containerization solutions.
 
 ## Install
 
@@ -80,7 +80,7 @@ See the use of `version_control` in the default task and the `version_control.sh
 
 ## Busting the Cache
 
-Sometimes you may want to bust your forge cache. You can do this by passing the `--cachebuster` option. If a filename or filepath is passed with the `--cachebuster` option, Forge will attempt to bust the cache for the given file. Forge creates cache keys based on filepath, so a filepath is preferred - the absolute filepath that is given to the `version_control` function for the file. If Forge can't match based on filepath or a filename it is given, then Forge will loop through each file in the cache and attempt to find a match. If a match is found, the file will be removed. If no match is found, Forge will error out. If no filename or filepath is given, Forge will bust the entire cache.
+Sometimes you may want to bust your forge cache. You can do this by passing the `--cachebuster` option. If a filename is passed with the `--cachebuster` option, Forge will attempt to bust the cache for the given file. Forge creates cache keys based on checksums. If a match is found, the file will be removed. If no match is found, Forge will error out. If no filename or filepath is given, Forge will bust the entire cache.
 
 ## Closing Remarks
 
@@ -97,7 +97,7 @@ Now go out, and Forge!
 bust_cache filepath
 ```
 
-Bust the forge cache. Takes an optional filename or filepath that is cached. If a filename or filepath is passed with the `--cachebuster` option, Forge will attempt to bust the cache for the given file. Forge creates cache keys based on filepath, so a filepath is preferred - the absolute filepath that is given to the `version_control` function for the file. If Forge can't match based on filepath or a filename it is given, then Forge will loop through each file in the cache and attempt to find a match. If a match is found, the file will be removed. If no match is found, Forge will error out. If no filename or filepath is given, Forge will bust the entire cache.
+Bust the forge cache. Takes an optional filename is cached. If a filename is passed with the `--cachebuster` option, Forge will attempt to bust the cache for the given file. Forge creates cache keys based on checksums. If a match is found, the file will be removed. If no match is found, Forge will error out. If no filename or filepath is given, Forge will bust the entire cache.
 
 This is the function that is run when the `--cachebuster` option is passed.
 
@@ -108,6 +108,21 @@ This is the function that is run when the `--cachebuster` option is passed.
 * None
 
 Example: `bust_cache "package.json"`
+
+### bust_stale_cache
+```shell
+bust_cache days_stale
+```
+
+Busts the cache for any file older than the given days_stale.
+
+**Arguments**
+* Optional: Target cutoff period in days
+
+**Returns**
+* None
+
+Example: `bust_stale_cache 7`
 
 ### command_exists
 
@@ -311,7 +326,7 @@ Example: `usage`
 version_control file cmd
 ```
 
-Exert version control on a file by caching a copy of it and comparing the cached version of the file to the current file. If the two are found to be different, run the given cmd, and cache a copy of the current file. The `version_control` function for a specific file will need to be run every time a task is run.
+Exert version control on a file by caching a copy of it as a checksum. If the two are found to be different, run the given cmd, and cache a copy of the new checksum. The `version_control` function for a specific file will need to be run every time a task is run.
 
 **Arguments**
 * File to version control

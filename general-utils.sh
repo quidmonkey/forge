@@ -95,7 +95,7 @@ run_task () {
     fi
 
     # is this a non-bash script?
-    if grep -Rq "/usr/bin/env bash" $FORGE_TASKS/$task; then
+    if grep -rq "/usr/bin/env bash" $FORGE_TASKS/$task; then
         # source to allow forge api to be used
         (source $FORGE_TASKS/$task $options)
     else
